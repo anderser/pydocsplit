@@ -5,17 +5,18 @@ A simple Python implementation of the great Docsplit utility from DocumentCloud
 
 ##Requirements:
 
-- Docsplit utility/gem and all its requirements: (http://documentcloud.github.com/docsplit/)
+- Docsplit utility/gem and all its requirements: <http://documentcloud.github.com/docsplit/>
 
 ##Installation:
 
-Follow the instructions to install the original Docsplit here: (http://documentcloud.github.com/docsplit/)
+Follow the instructions to install the original Docsplit here: 
+<http://documentcloud.github.com/docsplit/>
 
 Put the pydocsplit folder on your python path and change the DOCSPLIT_JAVA_ROOT setting
 in docsplit.py to point to your installation of the Ruby gem
 
 Remember to run OpenOffice in headless mode if you want to convert documents to pdf. 
-See the Docsplit docs for howto: http://documentcloud.github.com/docsplit/
+See the Docsplit docs for howto: <http://documentcloud.github.com/docsplit/>
 
 ##Usage:
 
