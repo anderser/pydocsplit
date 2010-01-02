@@ -117,8 +117,3 @@ class Docsplit:
                     return False
             else:
                 return proc.communicate()[0]
-#Usage
-        
-d = Docsplit()
-a = d.extract_meta("/Users/anders/enviromonitor_letter_of_intent_from_tv2.pdf", "length")
-print a
