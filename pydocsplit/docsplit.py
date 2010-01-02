@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 #Python implementation of the DocumentCloud's Docsplit utility
+#http://github.com/anderser/pydocsplit
 #
 import os
 import subprocess
