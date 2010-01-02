@@ -1,6 +1,6 @@
 #pyDocsplit
 
-A simple Python implementation of the great Docsplit utility from DocumentCloud
+A simple Python API implementation of the great Docsplit utility from DocumentCloud
 <http://github.com/documentcloud/docsplit>
 
 ##Requirements:
@@ -35,3 +35,4 @@ See the Docsplit docs for howto: <http://documentcloud.github.com/docsplit/>
 - Support multiple pdfs as input
 - Enhance parsing of pages options/ranges
 - Ensure pdfs before extracting text, images etc
+- And probably a lot of bug fixes...
