@@ -1,14 +1,15 @@
 #pyDocsplit
 
 A simple Python implementation of the great Docsplit utility from DocumentCloud
+(http://github.com/documentcloud/docsplit)
 
 ##Requirements:
 
-- Docsplit utility/gem and all its requirements: http://documentcloud.github.com/docsplit/
+- Docsplit utility/gem and all its requirements: (http://documentcloud.github.com/docsplit/)
 
 ##Installation:
 
-Follow the instructions to install the original Docsplit here: http://documentcloud.github.com/docsplit/
+Follow the instructions to install the original Docsplit here: (http://documentcloud.github.com/docsplit/)
 
 Put the pydocsplit folder on your python path and change the DOCSPLIT_JAVA_ROOT setting
 in docsplit.py to point to your installation of the Ruby gem
