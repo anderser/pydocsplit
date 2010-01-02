@@ -1,7 +1,7 @@
 #pyDocsplit
 
 A simple Python implementation of the great Docsplit utility from DocumentCloud
-(http://github.com/documentcloud/docsplit)
+<http://github.com/documentcloud/docsplit>
 
 ##Requirements:
 
