@@ -18,6 +18,7 @@ in docsplit.py to point to your installation of the Ruby gem
 Remember to run OpenOffice in headless mode if you want to convert documents to pdf. 
 See the Docsplit docs for howto: <http://documentcloud.github.com/docsplit/>
 
+
 ##Usage:
 
 	from pydocsplit import Docsplit
