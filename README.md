@@ -27,7 +27,8 @@ See the Docsplit docs for howto: http://documentcloud.github.com/docsplit/
 	d.extract_images('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', sizes=['500x', '250x'], formats=['png', 'jpg'], pages=[1,2,5,7])
 	documenttitle = d.extract_meta('/path/to/my/pdffile.pdf', 'title')
 
-TODO:
+##TODO:
+
 - Support multiple pdfs as input
 - Enhance parsing of pages options/ranges
 - Ensure pdfs before extracting text, images etc
