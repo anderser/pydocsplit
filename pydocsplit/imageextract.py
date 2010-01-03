@@ -37,9 +37,13 @@ class ImageExtractor:
         
         self.options.update(kwargs)
         
-        for s in self.options['sizes']:
-            for f in self.options['formats']:
-                self.convert(pdf, s.lower(), f.lower())
+        try:
+            for s in self.options['sizes']:
+                for f in self.options['formats']:
+                    self.convert(pdf, s.lower(), f.lower())
+            return True
+        except:
+            return False
                 
     def normalize_option(self, key):
             
@@ -59,6 +63,7 @@ class ImageExtractor:
             return "-quality 100"
         
     def convert(self, pdf, size, format):
+        
         
         basename, ext = os.path.splitext(os.path.basename(pdf))
         if size > 1: 

@@ -5,6 +5,7 @@
 #
 import os
 import subprocess
+import tempfile
 from imageextract import ImageExtractor
 
 #DOCSPLIT settings - change this to your value
@@ -36,7 +37,7 @@ class Docsplit:
         >>>d = Docsplit()
         >>>d.extract_pages('/path/to/my/document.doc', output='/path/to/outputdir/', pages='1-2')
         """
-        
+        pdf = self.ensure_pdf(pdf)
         return self.run("org.documentcloud.ExtractPages", pdf, **kwargs)
     
     def extract_text(self, pdf, **kwargs):
@@ -49,7 +50,7 @@ class Docsplit:
         >>>d = Docsplit()
         >>>d.extract_text('/path/to/my/pdffile.pdf', output='/path/to/outputdir/')
         """
-        
+        pdf = self.ensure_pdf(pdf)
         return self.run("org.documentcloud.ExtractText", pdf, **kwargs)
         
     def extract_pdf(self, doc, **kwargs):
@@ -78,7 +79,7 @@ class Docsplit:
         >>>d = Docsplit()
         >>>d.extract_images('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', sizes=['500x', '250x'], formats=['png', 'jpg'], pages=[1,2,5,7])
         """
-        
+        pdf = self.ensure_pdf(pdf)
         i = ImageExtractor()
         return i.extract(pdf, **kwargs)
     
@@ -92,15 +93,29 @@ class Docsplit:
         >>>d = Docsplit()
         >>>d.extract_meta('/path/to/my/pdffile.pdf', 'title')
         """
+        pdf = self.ensure_pdf(pdf)
         return self.run("org.documentcloud.ExtractInfo %s" % meta, pdf, **kwargs)
     
     def kwargs_parse(self, kwargs):
         
         return ' '.join(["--%s %s" % (key, kwargs[key]) for key in kwargs])
     
+    def ensure_pdf(self, doc):
+        
+        basename, ext = os.path.splitext(os.path.basename(doc))
+        
+        if ext == '.pdf':
+            return doc
+        else:
+            tempdir = os.path.join(tempfile.gettempdir(), 'docsplit')
+            self.extract_pdf(doc, output=tempdir)
+            return "%s.pdf" % os.path.join(tempdir, basename)
+        
+    
     def run(self, command, pdf, **kwargs):
         
         args = self.kwargs_parse(kwargs)
+
         cmd = "java %s %s -cp %s %s %s %s 2>&1" % (DOCSPLIT_HEADLESS, DOCSPLIT_LOGGING, DOCSPLIT_CLASSPATH, command, args, pdf)
 
         try: 
