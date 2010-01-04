@@ -1,7 +1,9 @@
 #pyDocsplit
 
-A simple Python API implementation of the great Docsplit utility from DocumentCloud
+A simple Python wrapper of the great Docsplit utility from DocumentCloud
 <http://github.com/documentcloud/docsplit>
+
+Please feel free to file issues, fork and extend!
 
 ##Requirements:
 
