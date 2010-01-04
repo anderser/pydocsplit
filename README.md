@@ -34,5 +34,5 @@ See the Docsplit docs for howto: <http://documentcloud.github.com/docsplit/>
 
 - Support multiple pdfs as input
 - Enhance parsing of pages options/ranges
-- Ensure pdfs before extracting text, images etc
+- Fix page numbers on generated images of PDF pages
 - And probably a lot of bug fixes...
