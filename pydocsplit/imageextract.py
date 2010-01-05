@@ -78,7 +78,8 @@ class ImageExtractor:
         
         out_file = os.path.join(directory, "%s_%%05d.%s" % (basename, format))
         
-        args = '%s %s %s "%s%s" "%s" 2>&1' % (DENSITY_ARG, self.resize_arg(size), self.quality_arg(format), pdf, self.pages_arg(), out_file )
+        args = '%s %s %s "%s%s" "%s" 2>&1' % (DENSITY_ARG, self.resize_arg(size), 
+                                              self.quality_arg(format), pdf, self.pages_arg(), out_file )
         args = args.strip()
         
         return self.run_gm(args)

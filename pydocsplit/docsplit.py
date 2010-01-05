@@ -8,11 +8,12 @@ import subprocess
 import tempfile
 from imageextract import ImageExtractor
 
-#DOCSPLIT settings - change this to your value
+#DOCSPLIT settings - change this to your docsplit location
 DOCSPLIT_JAVA_ROOT = '/Users/anders/.gem/ruby/1.8/gems/docsplit-0.1.0'
 
-#Not nessesary to change these
-DOCSPLIT_CLASSPATH = os.path.join (DOCSPLIT_JAVA_ROOT, "build") + os.pathsep + os.path.join(DOCSPLIT_JAVA_ROOT, "vendor", "'*'")
+#Not necessary to change these
+DOCSPLIT_CLASSPATH = os.path.join (DOCSPLIT_JAVA_ROOT,
+                                    "build") + os.pathsep + os.path.join(DOCSPLIT_JAVA_ROOT, "vendor", "'*'")
 
 DOCSPLIT_LOGGING = "-Djava.util.logging.config.file=%s/vendor/logging.properties" % DOCSPLIT_JAVA_ROOT
 
@@ -64,7 +65,8 @@ class Docsplit:
         
         filename, ext = os.path.splitext(os.path.basename(doc))
         
-        return self.run("-jar %s/vendor/jodconverter/jodconverter-cli-2.2.2.jar %s %s/%s.pdf" %  (DOCSPLIT_JAVA_ROOT, doc, kwargs['output'], filename), '') 
+        return self.run("-jar %s/vendor/jodconverter/jodconverter-cli-2.2.2.jar %s %s/%s.pdf" 
+                        %  (DOCSPLIT_JAVA_ROOT, doc, kwargs['output'], filename), '') 
     
     def extract_images(self, pdf, **kwargs):
         """
@@ -116,7 +118,8 @@ class Docsplit:
         
         args = self.kwargs_parse(kwargs)
 
-        cmd = "java %s %s -cp %s %s %s %s 2>&1" % (DOCSPLIT_HEADLESS, DOCSPLIT_LOGGING, DOCSPLIT_CLASSPATH, command, args, pdf)
+        cmd = "java %s %s -cp %s %s %s %s 2>&1" % (DOCSPLIT_HEADLESS, DOCSPLIT_LOGGING, DOCSPLIT_CLASSPATH, 
+                                                   command, args, pdf)
 
         try: 
             proc = subprocess.Popen('%s' % cmd, shell=True, stdout=subprocess.PIPE)
