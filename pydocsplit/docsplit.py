@@ -45,14 +45,34 @@ class Docsplit:
         """
         Extracts text from a PDF
         The text is saved as a text file with same base name as your document in the 
-        output dir specified 
+        output dir specified. 
+        
+        Using the returntext=True returns the text extracted in addition
+        to saving the text file. At the moment the returntext only works if all pages are 
+        extracted i.e. there is no pages argument.
         
         Usage:
         >>>d = Docsplit()
         >>>d.extract_text('/path/to/my/pdffile.pdf', output='/path/to/outputdir/')
+        >>>d.extract_text('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', returntext=True)
         """
+        
+        returntext = False        
+        if 'returntext' in kwargs:
+            if kwargs['returntext'] == True:
+                returntext = True
+            kwargs.pop('returntext')
+        
+        basename, ext = os.path.splitext(os.path.basename(pdf))
         pdf = self.ensure_pdf(pdf)
-        return self.run("org.documentcloud.ExtractText", pdf, **kwargs)
+        response = self.run("org.documentcloud.ExtractText", pdf, **kwargs)
+        
+        if returntext == True and response is not None and 'pages' not in kwargs:
+            txtfile = open("%s.txt" % os.path.join(kwargs['output'], basename), 'r')
+            response = txtfile.read()
+            txtfile.close()
+            
+        return response
         
     def extract_pdf(self, doc, **kwargs):
         """
@@ -106,7 +126,7 @@ class Docsplit:
         
         basename, ext = os.path.splitext(os.path.basename(doc))
         
-        if ext == '.pdf':
+        if ext.lower() == '.pdf':
             return doc
         else:
             tempdir = os.path.join(tempfile.gettempdir(), 'docsplit')

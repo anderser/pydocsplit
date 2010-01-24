@@ -28,7 +28,7 @@ See the Docsplit docs for howto: <http://documentcloud.github.com/docsplit/>
 	d = Docsplit()
 	d.extract_pdf('/path/to/my/document.doc', output='/path/to/outputdir/')
 	d.extract_pages('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', pages='1-2')
-	d.extract_text('/path/to/my/pdffile.pdf', output='/path/to/outputdir/')
+	d.extract_text('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', returntext=True)
 	d.extract_images('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', sizes=['500x', '250x'], formats=['png', 'jpg'], pages=[1,2,5,7])
 	documenttitle = d.extract_meta('/path/to/my/pdffile.pdf', 'title')
 
@@ -37,4 +37,3 @@ See the Docsplit docs for howto: <http://documentcloud.github.com/docsplit/>
 - Support multiple pdfs as input
 - Enhance parsing of pages options/ranges
 - Fix page numbers on generated images of PDF pages
-- And probably a lot of bug fixes...
