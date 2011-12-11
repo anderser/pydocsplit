@@ -7,18 +7,29 @@ import os
 import subprocess
 import tempfile
 from imageextract import ImageExtractor
+from page_extractor import PageExtractor
+from info_extractor import InfoExtractor
 
-#DOCSPLIT settings - change this to your docsplit location
-DOCSPLIT_JAVA_ROOT = '/Users/anders/.gem/ruby/1.8/gems/docsplit-0.1.0'
+DOCSPLIT_JAVA_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)
 
-#Not necessary to change these
 DOCSPLIT_CLASSPATH = os.path.join (DOCSPLIT_JAVA_ROOT,
                                     "build") + os.pathsep + os.path.join(DOCSPLIT_JAVA_ROOT, "vendor", "'*'")
 
 DOCSPLIT_LOGGING = "-Djava.util.logging.config.file=%s/vendor/logging.properties" % DOCSPLIT_JAVA_ROOT
 
-DOCSPLIT_HEADLESS = "-Djava.awt.headless=true"
+if os.path.exists("/usr/lib/openoffice"):
+    office = '/usr/lib/openoffice'
+elif os.path.exists("/usr/lib/libreoffice"):
+    office = '/usr/lib/libreoffice'
+else:
+    office = None
 
+if office:
+    DOCSPLIT_OFFICEHOME = '-Doffice.home=%s" % office'
+else: 
+    DOCSPLIT_OFFICEHOME = ''
+
+DOCSPLIT_HEADLESS = '-Djava.awt.headless=true'
 
 class ExtractionError(Exception):
     def __init__(self, cmd, msg):
@@ -30,16 +41,17 @@ class Docsplit:
     def __init__(self):
         pass
     
-    def extract_pages(self, pdf, **kwargs):
+    def extract_pages(self, pdfs, **kwargs):
         """
         Extracts each page of a pdf file and saves as separate pdf files
         
         Usage:
         >>>d = Docsplit()
-        >>>d.extract_pages('/path/to/my/document.doc', output='/path/to/outputdir/', pages='1-2')
+        >>>d.extract_pages('[/path/to/my/document1.doc','/path/to/my/document2.doc'], output='/path/to/outputdir/', pages='1-2')
         """
-        pdf = self.ensure_pdf(pdf)
-        return self.run("org.documentcloud.ExtractPages", pdf, **kwargs)
+        pdf = self.ensure_pdfs(pdfs)
+        p = PageExtractor()
+        return p.extract(pdfs, **kwargs)
     
     def extract_text(self, pdf, **kwargs):
         """
@@ -57,24 +69,9 @@ class Docsplit:
         >>>d.extract_text('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', returntext=True)
         """
         
-        returntext = False        
-        if 'returntext' in kwargs:
-            if kwargs['returntext'] == True:
-                returntext = True
-            kwargs.pop('returntext')
+        raise NotImplementedError
         
-        basename, ext = os.path.splitext(os.path.basename(pdf))
-        pdf = self.ensure_pdf(pdf)
-        response = self.run("org.documentcloud.ExtractText", pdf, **kwargs)
-        
-        if returntext == True and response is not None and 'pages' not in kwargs:
-            txtfile = open("%s.txt" % os.path.join(kwargs['output'], basename), 'r')
-            response = txtfile.read()
-            txtfile.close()
-            
-        return response
-        
-    def extract_pdf(self, doc, **kwargs):
+    def extract_pdf(self, docs, **kwargs):
         """
         Extracts pdf file from a document (i.e. .doc, .pdf, .rtf, .xls) using OpenOffice
         
@@ -82,13 +79,46 @@ class Docsplit:
         >>>d = Docsplit()
         >>>d.extract_pdf('/path/to/my/document.doc', output='/path/to/outputdir/')
         """
+        output = kwargs.get('output', '.')
         
-        filename, ext = os.path.splitext(os.path.basename(doc))
+        if not os.path.exists(output):
+            os.makedirs(output)        
         
-        return self.run("-jar %s/vendor/jodconverter/jodconverter-cli-2.2.2.jar %s %s/%s.pdf" 
-                        %  (DOCSPLIT_JAVA_ROOT, doc, kwargs['output'], filename), '') 
+        for doc in docs:
+            filename, ext = os.path.splitext(os.path.basename(doc))
+
+            options = '-jar %s/vendor/jodconverter/jodconverter-core-3.0-beta-4.jar -r %s/vendor/conf/document-formats.js' % (DOCSPLIT_JAVA_ROOT, DOCSPLIT_JAVA_ROOT)
+            
+            args = ('%s %s %s/%s.pdf') % (options, doc, output, filename)
+            
+            return self.run(args, doc) 
     
-    def extract_images(self, pdf, **kwargs):
+    def shellquote(s):
+        return "'" + s.replace("'", "'\\''") + "'"
+    
+    def ensure_pdfs(self, docs):
+            
+            """ 
+            Makes sure the document exists as PDF, if not converts to PDF
+            using office and saves in temp folder.
+            """
+            
+            #make sure we get a list of docs even thoug only a single doc is provided
+            docs = [docs] if isinstance(docs, str) else docs
+            
+            pdfs =[]
+            for doc in docs:
+                basename, ext = os.path.splitext(os.path.basename(doc))
+
+                if ext.lower() == '.pdf':
+                    pdfs.append(doc)
+                else:
+                    tempdir = os.path.join(tempfile.gettempdir(), 'docsplit')
+                    self.extract_pdf([doc], output=tempdir)
+                    pdfs.append("%s.pdf" % os.path.join(tempdir, basename))
+            return pdfs
+    
+    def extract_images(self, pdfs, **kwargs):
         """
         Extracts each page of a pdf file and saves as images of given size and format
         
@@ -101,11 +131,11 @@ class Docsplit:
         >>>d = Docsplit()
         >>>d.extract_images('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', sizes=['500x', '250x'], formats=['png', 'jpg'], pages=[1,2,5,7])
         """
-        pdf = self.ensure_pdf(pdf)
+        pdfs = self.ensure_pdfs(pdfs)
         i = ImageExtractor()
-        return i.extract(pdf, **kwargs)
+        return i.extract(pdfs, **kwargs)
     
-    def extract_meta(self, pdf, meta, **kwargs):
+    def extract_info(self, metakey, pdfs, **kwargs):
         """
         Extracts meta data from pdf file. Returns value of meta field as string
         Valid meta data fields:
@@ -115,36 +145,25 @@ class Docsplit:
         >>>d = Docsplit()
         >>>d.extract_meta('/path/to/my/pdffile.pdf', 'title')
         """
-        pdf = self.ensure_pdf(pdf)
-        return self.run("org.documentcloud.ExtractInfo %s" % meta, pdf, **kwargs)
+        i = InfoExtractor()
+        pdfs = self.ensure_pdfs(pdfs)
+        return i.extract(metakey,pdfs)
+
     
-    def kwargs_parse(self, kwargs):
+
         
-        return ' '.join(["--%s %s" % (key, kwargs[key]) for key in kwargs])
-    
-    def ensure_pdf(self, doc):
-        
-        basename, ext = os.path.splitext(os.path.basename(doc))
-        
-        if ext.lower() == '.pdf':
-            return doc
-        else:
-            tempdir = os.path.join(tempfile.gettempdir(), 'docsplit')
-            self.extract_pdf(doc, output=tempdir)
-            return "%s.pdf" % os.path.join(tempdir, basename)
-        
-    
     def run(self, command, pdf, **kwargs):
+
+        #TODO: Use args in subprocess and not shell=True
         
-        args = self.kwargs_parse(kwargs)
+        cmd = "java %s %s %s -cp %s %s 2>&1" % (DOCSPLIT_HEADLESS, DOCSPLIT_LOGGING, DOCSPLIT_OFFICEHOME, DOCSPLIT_CLASSPATH, command)
 
-        cmd = "java %s %s -cp %s %s %s %s 2>&1" % (DOCSPLIT_HEADLESS, DOCSPLIT_LOGGING, DOCSPLIT_CLASSPATH, 
-                                                   command, args, pdf)
-
-        try: 
-            proc = subprocess.Popen('%s' % cmd, shell=True, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             
-        except OsError, e:
+        try: 
+            pass
+            
+        except Exception, e:
             print e
         
         else: 

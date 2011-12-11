@@ -4,7 +4,7 @@
 #Original Ruby implementation: http://github.com/documentcloud/docsplit/blob/master/lib/docsplit/image_extractor.rb
 
 DENSITY_ARG = "-density 150"
-DEFAULT_FORMATS = ["png",]
+DEFAULT_FORMATS = ["jpg",]
 DEFAULT_SIZES = ["500x",]
 
 import re
@@ -26,7 +26,7 @@ class ImageExtractor:
             'pages': None,
             }
     
-    def extract(self, pdf, **kwargs):
+    def extract(self, pdfs, **kwargs):
         """ Extracts images of each page in a PDF document
         
         Usage:
@@ -37,13 +37,15 @@ class ImageExtractor:
         
         self.options.update(kwargs)
         
-        try:
-            for s in self.options['sizes']:
-                for f in self.options['formats']:
-                    self.convert(pdf, s.lower(), f.lower())
-            return True
-        except:
-            return False
+        for pdf in pdfs:
+        
+            try:
+                for s in self.options['sizes']:
+                    for f in self.options['formats']:
+                        self.convert(pdf, s.lower(), f.lower())
+                return True
+            except:
+                return False
                 
     def normalize_option(self, key):
             
@@ -73,10 +75,10 @@ class ImageExtractor:
             
         directory = os.path.join(self.options['output'], subfolder)
         
-        if not os.path.isdir(directory):
-            os.mkdir(directory)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
         
-        out_file = os.path.join(directory, "%s_%%05d.%s" % (basename, format))
+        out_file = os.path.join(directory, "%s_%%d.%s" % (basename, format))
         
         args = '%s %s %s "%s%s" "%s" 2>&1' % (DENSITY_ARG, self.resize_arg(size), 
                                               self.quality_arg(format), pdf, self.pages_arg(), out_file )
