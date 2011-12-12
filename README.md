@@ -25,3 +25,5 @@ Clone this repo and add to PYTHONPATH
 	d.extract_images('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', sizes=['500x', '250x'], formats=['png', 'jpg'], pages=[1,2,5,7])
 	documenttitle = d.extract_info('title', /path/to/my/pdffile.pdf')
 
+
+##Versions:
