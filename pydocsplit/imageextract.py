@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
-#Python implementation of DocumentCloud's Docsplit Image Exctractor
-#Original Ruby implementation: http://github.com/documentcloud/docsplit/blob/master/lib/docsplit/image_extractor.rb
-
-DENSITY_ARG = "-density 150"
-DEFAULT_FORMATS = ["jpg",]
-DEFAULT_SIZES = ["500x",]
-
 import re
 import subprocess
 import os
+import tempfile
+import shutil
+from info_extractor import InfoExtractor
+
+DEFAULT_DENSITY = '150'
+DEFAULT_FORMATS = ["png",]
+DEFAULT_SIZES = ["700x",]
+MEMORY_ARGS =  "-limit memory 256MiB -limit map 512MiB"
 
 class ImageExtractionError(Exception):
     def __init__(self, cmd, msg):
@@ -24,10 +25,14 @@ class ImageExtractor:
             'sizes' : DEFAULT_SIZES,
             'formats' : DEFAULT_FORMATS,
             'pages': None,
+            'density': DEFAULT_DENSITY,
+            'rolling': True,
             }
+        self.info_extractor = InfoExtractor()  
     
     def extract(self, pdfs, **kwargs):
         """ Extracts images of each page in a PDF document
+        Only supports to extract all pages in document at the moment
         
         Usage:
         
@@ -38,14 +43,14 @@ class ImageExtractor:
         self.options.update(kwargs)
         
         for pdf in pdfs:
-        
-            try:
-                for s in self.options['sizes']:
-                    for f in self.options['formats']:
-                        self.convert(pdf, s.lower(), f.lower())
-                return True
-            except:
-                return False
+            
+            previous = None
+            for s in self.options['sizes']:
+                for f in self.options['formats']:
+                    self.convert(pdf, s.lower(), f.lower(), previous)
+                    
+                if self.options['rolling']:
+                    previous = s.lower()
                 
     def normalize_option(self, key):
             
@@ -58,15 +63,24 @@ class ImageExtractor:
             return ''
         return "-resize %s" % size
     
+    def _copy_files(self,src, dest):
+        src_files = os.listdir(src)
+        for file_name in src_files:
+            full_file_name = os.path.join(src, file_name)
+            if (os.path.isfile(full_file_name)):
+                shutil.copy(full_file_name, dest)
+    
     def quality_arg(self, format):
         if format == "jpeg" or "jpg":
             return "-quality 85"
-        else:
+        elif format == "png":
             return "-quality 100"
+        else:
+            format = ""
         
-    def convert(self, pdf, size, format):
+    def convert(self, pdf, size, format, previous=None):
         
-        
+        tempdir = tempfile.gettempdir()
         basename, ext = os.path.splitext(os.path.basename(pdf))
         if size > 1: 
             subfolder = str(size)
@@ -78,31 +92,29 @@ class ImageExtractor:
         if not os.path.exists(directory):
             os.makedirs(directory)
         
-        out_file = os.path.join(directory, "%s_%%d.%s" % (basename, format))
+        #TODO add method to clean pages arg to range/list ref page_list in ruby ver
+        #pages = self.options.get('pages', '1+%i' % i.extract('length', pdf))
         
-        args = '%s %s %s "%s%s" "%s" 2>&1' % (DENSITY_ARG, self.resize_arg(size), 
-                                              self.quality_arg(format), pdf, self.pages_arg(), out_file )
-        args = args.strip()
+        pages = range(1,self.info_extractor.extract('length', pdf))
         
-        return self.run_gm(args)
-    
-    def pages_arg(self):
+        common = "%s -density %s %s %s" % (MEMORY_ARGS, self.options['density'], self.resize_arg(size), self.quality_arg(format))
         
-        self.normalize_option("pages")
-        if self.options['pages'] is None:
-           return ''
+        if previous:
+            
+            self._copy_files(os.path.join(self.options['output'], previous), directory)
+            cmd = 'MAGICK_TMPDIR=%s OMP_NUM_THREADS=2 gm mogrify %s -unsharp 0x0.5+0.75 "%s/*.%s" 2>&1' % (tempdir, common, directory, format)
+            self.run_gm(cmd.strip())
         else:
-           p = re.compile(r'\d+')
-           return "[%s]" % p.sub(self.page_subtract, self.options['pages'])
-           
-    def page_subtract(self, match):
-        
-        value = int( match.group() ) - 1
-        return str(value)
+            
+            for page in pages:
+                out_file = os.path.join(directory, "%s_%i.%s" % (basename, page, format))
+                cmd = "MAGICK_TMPDIR=%s OMP_NUM_THREADS=2 gm convert +adjoin %s %s[%i] %s 2>&1" % (tempdir, common, pdf, (page-1), out_file)
+                self.run_gm(cmd.strip())
+        return True
     
     def run_gm(self, args):
         
-        procs = subprocess.Popen('gm convert %s' % args, shell=True, stdout=subprocess.PIPE)
+        procs = subprocess.Popen('%s' % args, shell=True, stdout=subprocess.PIPE)
 
         if procs.wait() != 0:
             try:
@@ -112,4 +124,5 @@ class ImageExtractor:
                 return False
         else:
             return True
+
 
