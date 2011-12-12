@@ -24,12 +24,13 @@ class PyDocsplitTests(unittest.TestCase):
     
     def test_imageextract(self):
         
-        imgpath = os.path.join(self.tempdir, "tv2","images")
-        self.docsplit.extract_images(self.pdf, output=imgpath, sizes=['700x', '1000x', '180x'], format=["jpg,"])
-        
-        self.assertEqual(os.path.exists(os.path.join(imgpath, "700x", "tv2_1.jpg")), True)
-        self.assertEqual(os.path.exists(os.path.join(imgpath, "700x", "tv2_2.jpg")), True)
-    
+        imgpath = os.path.join(self.tempdir, "tv2","images_all")
+        self.docsplit.extract_images(self.pdf, output=imgpath, sizes=['1000x', '700x', '180x'], formats=["jpg"])
+        for i in range(1,6):
+            self.assertEqual(os.path.exists(os.path.join(imgpath, "700x", "tv2_%i.jpg" % i)), True)
+            self.assertEqual(os.path.exists(os.path.join(imgpath, "1000x", "tv2_%i.jpg" % i)), True)
+            self.assertEqual(os.path.exists(os.path.join(imgpath, "180x", "tv2_%i.jpg" % i)), True)
+                                                                                              
     def tearDown(self):
         if os.path.exists(self.tempdir):
             shutil.rmtree(self.tempdir)
