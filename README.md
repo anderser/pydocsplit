@@ -1,6 +1,6 @@
 #pyDocsplit
 
-A simple Python wrapper of the great Docsplit utility from DocumentCloud
+A simple Python port of the great Docsplit utility from DocumentCloud
 <http://github.com/documentcloud/docsplit>
 
 ##Requirements:
