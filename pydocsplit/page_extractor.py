@@ -5,6 +5,10 @@ import sys
 import os
 from utils.command_runner import run, RunError
 
+class PageExtractionError(Exception):
+    def __init__(self, cmd, msg):
+        self.cmd = cmd
+        self.msg = msg
 
 class PageExtractor:
     
@@ -31,7 +35,7 @@ class PageExtractor:
             try:
                 result = run(cmd)
             except RunError, err:
-                raise Exception, err
+                raise PageExtractionError, err
             else:
                 if (os.path.exists('doc_data.txt')):
                     os.unlink('doc_data.txt')
