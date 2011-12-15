@@ -91,8 +91,7 @@ class ImageExtractor:
             os.makedirs(directory)
         
         #TODO add method to clean pages arg to range/list ref page_list in ruby ver
-        #pages = self.options.get('pages', '1+%i' % i.extract('length', pdf))
-        
+
         pages = range(1,self.info_extractor.extract('length', pdf)+1)
         
         common = "%s -density %s %s %s" % (MEMORY_ARGS, self.options['density'], self.resize_arg(size), self.quality_arg(format))

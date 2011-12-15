@@ -58,10 +58,6 @@ class Docsplit:
         The text is saved as a text file with same base name as your document in the 
         output dir specified. 
         
-        Using the returntext=True returns the text extracted in addition
-        to saving the text file. At the moment the returntext only works if all pages are 
-        extracted i.e. there is no pages argument.
-        
         Usage:
         >>>d = Docsplit()
         >>>d.extract_text('/path/to/my/pdffile.pdf', output='/path/to/outputdir/')
@@ -95,32 +91,29 @@ class Docsplit:
             
             args = ('%s %s %s/%s.pdf') % (options, doc, output, filename)
             
-            return self.run(args, doc) 
-    
-    def shellquote(s):
-        return "'" + s.replace("'", "'\\''") + "'"
+            return self._run(args, doc) 
     
     def ensure_pdfs(self, docs):
             
-            """ 
-            Makes sure the document exists as PDF, if not converts to PDF
-            using office and saves in temp folder.
-            """
-            
-            #make sure we get a list of docs even thoug only a single doc is provided
-            docs = [docs] if isinstance(docs, str) else docs
-            
-            pdfs =[]
-            for doc in docs:
-                basename, ext = os.path.splitext(os.path.basename(doc))
+        """ 
+        Makes sure the document exists as PDF, if not converts to PDF
+        using office and saves in temp folder.
+        """
+        
+        #make sure we get a list of docs even though only a single doc is provided
+        docs = [docs] if isinstance(docs, str) else docs
+        
+        pdfs =[]
+        for doc in docs:
+            basename, ext = os.path.splitext(os.path.basename(doc))
 
-                if ext.lower() == '.pdf':
-                    pdfs.append(doc)
-                else:
-                    tempdir = os.path.join(tempfile.gettempdir(), 'docsplit')
-                    self.extract_pdf([doc], output=tempdir)
-                    pdfs.append("%s.pdf" % os.path.join(tempdir, basename))
-            return pdfs
+            if ext.lower() == '.pdf':
+                pdfs.append(doc)
+            else:
+                tempdir = os.path.join(tempfile.gettempdir(), 'docsplit')
+                self.extract_pdf([doc], output=tempdir)
+                pdfs.append("%s.pdf" % os.path.join(tempdir, basename))
+        return pdfs
     
     def extract_images(self, pdfs, **kwargs):
         """
@@ -153,11 +146,13 @@ class Docsplit:
         pdfs = self.ensure_pdfs(pdfs)
         return i.extract(metakey,pdfs)
 
-    
-
         
-    def run(self, command, pdf, **kwargs):
-
+    def _run(self, command, pdf, **kwargs):
+        
+        """
+        Private method to run the office document converter via java
+        """
+        
         #TODO: Use args in subprocess and not shell=True
         
         cmd = "java %s %s %s -cp %s %s" % (DOCSPLIT_HEADLESS, DOCSPLIT_LOGGING, DOCSPLIT_OFFICEHOME, DOCSPLIT_CLASSPATH, command)
@@ -170,10 +165,6 @@ class Docsplit:
         
         else: 
             if proc.wait() != 0:
-                try:
-                    raise ExtractionError(cmd, proc.communicate()[0])
-                except ExtractionError, err:
-                    print err.cmd, err.msg
-                    return False
+                raise ExtractionError(cmd, proc.communicate()[0])
             else:
                 return proc.communicate()[0]
