@@ -11,10 +11,12 @@ from pydocsplit.docsplit import Docsplit
 class PyDocsplitTests(unittest.TestCase):
     def setUp(self):
         self.pdf = "./fixtures/tv2.pdf"
+        self.text_pdf = "./fixtures/obama_arts.pdf"
         self.doc = "./fixtures/obama_veterans.doc"
         self.docsplit = Docsplit()
         self.tempdir = os.path.join(tempfile.gettempdir(), 'docsplittests')
-    
+        print self.tempdir
+        
     def test_infoextract(self):
         
         self.assertEqual(self.docsplit.extract_info('length', self.pdf), 8)
@@ -36,7 +38,12 @@ class PyDocsplitTests(unittest.TestCase):
             self.assertEqual(os.path.exists(os.path.join(imgpath, "700x", "tv2_%i.jpg" % i)), True)
             self.assertEqual(os.path.exists(os.path.join(imgpath, "1000x", "tv2_%i.jpg" % i)), True)
             self.assertEqual(os.path.exists(os.path.join(imgpath, "180x", "tv2_%i.jpg" % i)), True)
-                                                                                              
+    
+    def test_text_extraction_no_ocr_all_pages(self):
+        
+            self.docsplit.extract_text(self.text_pdf, output=self.tempdir, pages=[1])
+            self.assertEqual(os.path.exists(os.path.join(self.tempdir, "obama_arts.txt")), True)
+                                                                                   
     def tearDown(self):
         if os.path.exists(self.tempdir):
             shutil.rmtree(self.tempdir)
