@@ -3,7 +3,7 @@
 
 import sys
 import os
-from utils.command_runner import run, RunError
+from pydocsplit.command_runner import run, RunError
 
 class PageExtractionError(Exception):
     def __init__(self, cmd, msg):

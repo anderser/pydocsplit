@@ -3,9 +3,8 @@
 
 import os
 import subprocess
-from utils import command_runner
-from exceptions import ExtractionError
-from info_extractor import InfoExtractor
+from pydocsplit.exceptions import ExtractionError
+from pydocsplit.info_extractor import InfoExtractor
 
 class TextExtractor:
     def __init__(self):

@@ -5,8 +5,8 @@ import subprocess
 import os
 import tempfile
 import shutil
-from exceptions import ExtractionError
-from info_extractor import InfoExtractor
+from pydocsplit.exceptions import ExtractionError
+from pydocsplit.info_extractor import InfoExtractor
 
 DEFAULT_DENSITY = '150'
 DEFAULT_FORMATS = ["png",]

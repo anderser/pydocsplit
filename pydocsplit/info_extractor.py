@@ -4,7 +4,7 @@
 import sys
 import os
 import re
-from utils.command_runner import run, RunError
+from pydocsplit.command_runner import run, RunError
 
 
 class InfoExtractor:

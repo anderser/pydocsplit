@@ -7,11 +7,11 @@ import os
 import subprocess
 import tempfile
 import shlex
-from exceptions import ExtractionError
-from imageextract import ImageExtractor
-from page_extractor import PageExtractor
-from info_extractor import InfoExtractor
-from text_extractor import TextExtractor
+from pydocsplit.exceptions import ExtractionError
+from pydocsplit.imageextract import ImageExtractor
+from pydocsplit.page_extractor import PageExtractor
+from pydocsplit.info_extractor import InfoExtractor
+from pydocsplit.text_extractor import TextExtractor
 
 
 DOCSPLIT_JAVA_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)
