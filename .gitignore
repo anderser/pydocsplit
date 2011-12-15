@@ -2,5 +2,7 @@
 .pydevproject
 .project
 /test.py
-
+build
+dist
+pydocsplit.egg-info
 .settings/org.eclipse.core.resources.prefs
