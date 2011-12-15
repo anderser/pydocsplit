@@ -11,6 +11,7 @@ from pydocsplit.docsplit import Docsplit
 class PyDocsplitTests(unittest.TestCase):
     def setUp(self):
         self.pdf = "./fixtures/tv2.pdf"
+        self.doc = "./fixtures/obama_veterans.doc"
         self.docsplit = Docsplit()
         self.tempdir = os.path.join(tempfile.gettempdir(), 'docsplittests')
     
@@ -22,6 +23,11 @@ class PyDocsplitTests(unittest.TestCase):
             
         self.assertEqual(self.docsplit.extract_pages([self.pdf], output=self.tempdir), True)
     
+    def test_pdfextract(self):
+        
+        self.docsplit.extract_pdf(self.doc, output=self.tempdir)
+        self.assertEqual(os.path.exists(os.path.join(self.tempdir, "obama_veterans.pdf")), True)
+        
     def test_imageextract(self):
         
         imgpath = os.path.join(self.tempdir, "tv2","images_all")
