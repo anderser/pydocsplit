@@ -5,7 +5,7 @@ from setuptools import setup
 setup(
     name='pydocsplit',
     version='0.2.0',
-    description="A toolkit for splitting PDFs and documents to images and text. Based onn ProPublicas's Docsplit (Ruby)",
+    description="A toolkit for splitting PDFs and documents to images and text. Based on ProPublicas's Docsplit (Ruby)",
     long_description=open('README.md').read(),
     author='Anders Eriksen',
     author_email='anders@anderser.no',
