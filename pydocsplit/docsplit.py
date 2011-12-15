@@ -6,6 +6,7 @@
 import os
 import subprocess
 import tempfile
+import shlex
 from imageextract import ImageExtractor
 from page_extractor import PageExtractor
 from info_extractor import InfoExtractor
@@ -84,6 +85,8 @@ class Docsplit:
         if not os.path.exists(output):
             os.makedirs(output)        
         
+        docs = [docs] if isinstance(docs, str) else docs
+        
         for doc in docs:
             filename, ext = os.path.splitext(os.path.basename(doc))
 
@@ -156,12 +159,10 @@ class Docsplit:
 
         #TODO: Use args in subprocess and not shell=True
         
-        cmd = "java %s %s %s -cp %s %s 2>&1" % (DOCSPLIT_HEADLESS, DOCSPLIT_LOGGING, DOCSPLIT_OFFICEHOME, DOCSPLIT_CLASSPATH, command)
-
-        proc = subprocess.Popen(cmd,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            
+        cmd = "java %s %s %s -cp %s %s" % (DOCSPLIT_HEADLESS, DOCSPLIT_LOGGING, DOCSPLIT_OFFICEHOME, DOCSPLIT_CLASSPATH, command)
+        
         try: 
-            pass
+            proc = subprocess.Popen(shlex.split(cmd),shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             
         except Exception, e:
             print e

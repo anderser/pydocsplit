@@ -95,14 +95,14 @@ class ImageExtractor:
         #TODO add method to clean pages arg to range/list ref page_list in ruby ver
         #pages = self.options.get('pages', '1+%i' % i.extract('length', pdf))
         
-        pages = range(0,self.info_extractor.extract('length', pdf)+1)
+        pages = range(1,self.info_extractor.extract('length', pdf)+1)
         
         common = "%s -density %s %s %s" % (MEMORY_ARGS, self.options['density'], self.resize_arg(size), self.quality_arg(format))
         
         if previous:
             
             self._copy_files(os.path.join(self.options['output'], previous), directory)
-            cmd = 'MAGICK_TMPDIR=%s OMP_NUM_THREADS=2 gm mogrify %s -unsharp 0x0.5+0.75 "%s/*.%s" 2>&1' % (tempdir, common, directory, format)
+            cmd = 'MAGICK_TMPDIR=%s OMP_NUM_THREADS=2 gm mogrify %s -unsharp 0x0.5+0.75 "%s/*.%s" 2>&1'% (tempdir, common, directory, format)
             self.run_gm(cmd.strip())
         else:
             
