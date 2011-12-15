@@ -5,6 +5,7 @@ import subprocess
 import os
 import tempfile
 import shutil
+from exceptions import ExtractionError
 from info_extractor import InfoExtractor
 
 DEFAULT_DENSITY = '150'
@@ -12,10 +13,7 @@ DEFAULT_FORMATS = ["png",]
 DEFAULT_SIZES = ["700x",]
 MEMORY_ARGS =  "-limit memory 256MiB -limit map 512MiB"
 
-class ImageExtractionError(Exception):
-    def __init__(self, cmd, msg):
-        self.cmd = cmd
-        self.msg = msg
+
 
 class ImageExtractor:
 
@@ -117,12 +115,5 @@ class ImageExtractor:
         procs = subprocess.Popen('%s' % args, shell=True, stdout=subprocess.PIPE)
 
         if procs.wait() != 0:
-            try:
-                raise ImageExtractionError(args, procs.communicate()[0])
-            except ImageExtractionError, err:
-                print err.cmd, err.msg
-                return False
-        else:
-            return True
-
+            raise ExtractionError(args, procs.communicate()[0])
 

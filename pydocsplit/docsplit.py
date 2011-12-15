@@ -7,9 +7,12 @@ import os
 import subprocess
 import tempfile
 import shlex
+from exceptions import ExtractionError
 from imageextract import ImageExtractor
 from page_extractor import PageExtractor
 from info_extractor import InfoExtractor
+from text_extractor import TextExtractor
+
 
 DOCSPLIT_JAVA_ROOT = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir)
 
@@ -32,11 +35,6 @@ else:
 
 DOCSPLIT_HEADLESS = '-Djava.awt.headless=true'
 
-class ExtractionError(Exception):
-    def __init__(self, cmd, msg):
-        self.cmd = cmd
-        self.msg = msg
-
 class Docsplit:
     
     def __init__(self):
@@ -54,7 +52,7 @@ class Docsplit:
         p = PageExtractor()
         return p.extract(pdfs, **kwargs)
     
-    def extract_text(self, pdf, **kwargs):
+    def extract_text(self, docs, **kwargs):
         """
         Extracts text from a PDF
         The text is saved as a text file with same base name as your document in the 
@@ -70,7 +68,10 @@ class Docsplit:
         >>>d.extract_text('/path/to/my/pdffile.pdf', output='/path/to/outputdir/', returntext=True)
         """
         
-        raise NotImplementedError
+        pdfs = self.ensure_pdfs(docs)
+        t = TextExtractor()
+        return t.extract(pdfs, **kwargs)
+    
         
     def extract_pdf(self, docs, **kwargs):
         """
