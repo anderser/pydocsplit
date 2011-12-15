@@ -2,3 +2,5 @@
 .pydevproject
 .project
 /test.py
+
+.settings/org.eclipse.core.resources.prefs
