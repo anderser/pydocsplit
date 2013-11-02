@@ -2,9 +2,11 @@
 # encoding: utf-8
 
 import os
+import re
 import subprocess
 from pydocsplit.exceptions import ExtractionError
 from pydocsplit.info_extractor import InfoExtractor
+from pydocsplit.command_runner import run, RunError
 
 class TextExtractor:
     def __init__(self):
@@ -65,5 +67,22 @@ class TextExtractor:
             raise ExtractionError(e.cmd, e.returncode)
        
     def contains_text(self, pdf):
+
+        """
+        Check if the PDF contains text by checing if fonts are included in the file.
+        Returns True if pdf contains text, False if it does not contain text 
+        """
         
-        return NotImplementedError()
+        try:
+            result = run('pdffonts', '"%s" 2>&1' % pdf)
+            
+            
+        except RunError, err:
+            raise Exception, err
+        else:
+            m = re.search(r"---------\n\Z", result, re.MULTILINE)
+            if m: 
+                return False
+            else: 
+                return True
+            return m
