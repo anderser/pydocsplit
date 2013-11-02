@@ -42,6 +42,11 @@ class PyDocsplitTests(unittest.TestCase):
         
             self.docsplit.extract_text(self.text_pdf, output=self.tempdir, pages=[1])
             self.assertEqual(os.path.exists(os.path.join(self.tempdir, "obama_arts_1.txt")), True)
+
+    def test_text_extraction_ocr_all_pages(self):
+        
+            self.docsplit.extract_text(self.pdf, output=self.tempdir, language='nor')
+            self.assertEqual(os.path.exists(os.path.join(self.tempdir, "tv2.txt")), True)
                                                                                    
     def tearDown(self):
         if os.path.exists(self.tempdir):
